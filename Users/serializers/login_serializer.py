@@ -8,8 +8,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         token['rol'] = user.rol
         token['email'] = user.email
-        token['nombre'] = user.nombre if getattr (user, 'nombre', None) else user.username
         token['username'] = user.username
+
+        token['nombre'] = str(user.nombre) if user.nombre else user.username
 
         return token
 
