@@ -1,4 +1,4 @@
-from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer)
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -8,6 +8,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         token['rol'] = user.rol
         token['email'] = user.email
+        token['nombre'] = user.nombre if getattr (user, 'nombre', None) else user.username
+        token['username'] = user.username
+
         return token
 
     def validate(self, attrs):
