@@ -131,3 +131,6 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
