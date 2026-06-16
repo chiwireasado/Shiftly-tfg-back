@@ -17,7 +17,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = ['shiftly-back.onrender.com', 'localhost', '127.0.0.1']
 
 
 INSTALLED_APPS = [
@@ -44,8 +44,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-    #"http://localhost:4200"
+CORS_ALLOWED_ORIGINS = [
+    'https://shiftly-tfg.vercel.app',
+    'http://localhost:4200'
+]
 
 
 ROOT_URLCONF = 'tfg_back.urls'
