@@ -1,0 +1,14 @@
+# Variables de entorno secretas
+.env
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+
+# Base de datos local
+db.sqlite3

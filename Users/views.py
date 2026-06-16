@@ -1,18 +1,26 @@
-from rest_framework.views import APIView
-from rest_framework import generics
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.views import TokenObtainPairView
+import stripe
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
+from django.http import JsonResponse
+
+from rest_framework.views import APIView
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 from Users.models import Producto, Turno, VentaTurno
 from Users.serializers.register_serializer import ProductoSerializer, RegisterSerializer, EmpleadoSerializer
 from Users.serializers.login_serializer import CustomTokenObtainPairSerializer
-from rest_framework.decorators import api_view, permission_classes
+
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -376,3 +384,48 @@ class ListaDevolucionesAdminView(APIView):
         } for d in devoluciones]
 
         return Response(resultado, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def crear_intencion_pago(request):
+    try:
+        productos_recibidos = request.data.get('productos', [])
+
+        if not productos_recibidos:
+            return Response({'error': 'El ticket está vacío'}, status=status.HTTP_400_BAD_REQUEST)
+
+        total_centavos = 0
+
+
+        for item in productos_recibidos:
+            try:
+                producto_db = Producto.objects.get(id=item['id'], empresa=request.user.empresa)
+                total_centavos += int(item['cantidad'] * float(producto_db.precio) * 100)
+            except Producto.DoesNotExist:
+                return Response({'error': f"El producto con ID {item['id']} no existe o no pertenece a tu comercio"},
+                                status=status.HTTP_404_NOT_FOUND)
+
+        if total_centavos == 0:
+            return Response({'error': 'El total no puede ser cero'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+        intent = stripe.PaymentIntent.create(
+            amount=total_centavos,
+            currency='usd',
+            metadata={
+                'usuario_id': request.user.id,
+                'productos': str([{'id': p['id'], 'cant': p['cantidad']} for p in productos_recibidos])
+            }
+        )
+
+
+        return Response({
+            'clientSecret': intent.client_secret,
+            'totalCalculado': total_centavos / 100
+        }, status=status.HTTP_200_OK)
+
+    except stripe.error.StripeError as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({'error': f'Error interno en pasarela: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -3,6 +3,7 @@ from Users.views import (RegisterView, UserProfileView, CustomTokenObtainPairVie
     VerInventarioView, RegistrarPagoView, CerrarTurnoView, ObtenerInformeView, AbrirTurnoView, AdminVerInformesEmpresaView,
                          ModificarProductoView, HistorialVentasAdminView, EjecutarDevolucionView, ListaDevolucionesAdminView)
 
+from . import views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -26,4 +27,5 @@ urlpatterns = [
     path('admin/devoluciones/', HistorialVentasAdminView.as_view(), name='admin-historial-ventas'),
     path('admin/devolver-item/<int:pk>/', EjecutarDevolucionView.as_view(), name='admin-devolver-item'),
     path('admin/lista-devoluciones/', ListaDevolucionesAdminView.as_view(), name='admin-lista-devoluciones'),
+path('api/create-payment-intent/', views.crear_intencion_pago, name='crear_intencion_pago'),
 ]
