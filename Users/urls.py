@@ -27,5 +27,5 @@ urlpatterns = [
     path('admin/devoluciones/', HistorialVentasAdminView.as_view(), name='admin-historial-ventas'),
     path('admin/devolver-item/<int:pk>/', EjecutarDevolucionView.as_view(), name='admin-devolver-item'),
     path('admin/lista-devoluciones/', ListaDevolucionesAdminView.as_view(), name='admin-lista-devoluciones'),
-path('api/create-payment-intent/', views.crear_intencion_pago, name='crear_intencion_pago'),
+path('create-payment-intent/', views.crear_intencion_pago, name='crear_intencion_pago'),
 ]
